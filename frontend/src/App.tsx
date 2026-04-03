@@ -1,0 +1,205 @@
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Dashboard } from './components/Dashboard.tsx';
+import { MapView } from './components/MapView.tsx';
+import { ErrorReports } from './components/ErrorReports.tsx';
+import { AccountSettings } from './components/AccountSettings.tsx';
+import { Menu, X, Map, Home, AlertTriangle, Settings, Globe, Sun, Moon } from 'lucide-react';
+import { Logo } from './components/Logo.tsx';
+
+function App() {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [currentLang, setCurrentLang] = useState('sr');
+
+  const languages = [
+    { code: 'sr', name: 'Srpski', flag: '🇷🇸' },
+    { code: 'en', name: 'English', flag: '🇬🇧' }
+  ];
+
+  const menuItems = [
+    { path: '/map', label: 'Mapa', icon: Map },
+    { path: '/dashboard', label: 'Dashboard', icon: Home },
+    { path: '/error-reports', label: 'Prijave', icon: AlertTriangle },
+    { path: '/account-settings', label: 'Podešavanja', icon: Settings },
+  ];
+
+  // Apply dark mode to body
+  useEffect(() => {
+    if (isDarkMode) {
+      document.body.classList.add('dark');
+    } else {
+      document.body.classList.remove('dark');
+    }
+  }, [isDarkMode]);
+
+  return (
+    <Router>
+      <div className={`flex h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'} overflow-hidden`}>
+        {/* Sidebar */}
+        <aside className={`
+          fixed lg:static inset-y-0 left-0 z-40 w-72 ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-2xl transform transition-transform duration-300 ease-in-out
+          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+        `}>
+          <div className="flex flex-col h-full">
+            {/* Logo Section */}
+            <div className={`p-6 ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} border-b`}>
+              <Logo size="medium" />
+            </div>
+
+            {/* Navigation Menu */}
+            <nav className="flex-1 p-4 space-y-2">
+              {menuItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <a
+                    key={item.path}
+                    href={item.path}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      window.location.href = item.path;
+                      setIsSidebarOpen(false);
+                    }}
+                    className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
+                      isDarkMode 
+                        ? 'text-gray-300 hover:bg-gray-700 hover:text-blue-400' 
+                        : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
+                    }`}
+                  >
+                    <Icon size={20} className="group-hover:scale-110 transition-transform" />
+                    <span className="font-medium">{item.label}</span>
+                  </a>
+                );
+              })}
+            </nav>
+
+            {/* User Section */}
+            <div className={`p-4 ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} border-t`}>
+              <div className={`flex items-center space-x-3 p-3 rounded-xl ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
+                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center">
+                  <span className="text-white font-semibold">MM</span>
+                </div>
+                <div className="flex-1">
+                  <p className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Marko Marković</p>
+                  <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>marko@example.com</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        {/* Mobile Overlay */}
+        {isSidebarOpen && (
+          <div
+            className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-30"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+        )}
+
+        {/* Main Content */}
+        <main className="flex-1 flex flex-col overflow-hidden">
+          {/* Top Bar */}
+          <header className={`${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} shadow-sm border-b px-6 py-4`}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                {/* Mobile Menu Button */}
+                <button
+                  onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                  className={`lg:hidden p-2 rounded-lg transition-all ${
+                    isDarkMode ? 'bg-gray-700 hover:bg-gray-600 text-gray-300' : 'bg-white hover:bg-gray-100 text-gray-700'
+                  }`}
+                >
+                  {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
+                </button>
+              </div>
+              
+              {/* Center Logo - Mobile Only */}
+              <div className="lg:hidden absolute left-1/2 transform -translate-x-1/2">
+                <Logo size="small" showText={false} />
+              </div>
+              
+              {/* Desktop Title */}
+              <div className="hidden lg:block">
+                <h2 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+                  {(window.location.pathname === '/' || window.location.pathname === '/map') && 'Mapa'}
+                  {window.location.pathname === '/dashboard' && 'Dashboard'}
+                  {window.location.pathname === '/error-reports' && 'Prijave'}
+                  {window.location.pathname === '/account-settings' && 'Podešavanja'}
+                </h2>
+              </div>
+              
+              {/* Right Actions */}
+              <div className="flex items-center space-x-2">
+                {/* Language Selector - Mobile Only */}
+                <div className="lg:hidden">
+                  <select 
+                    value={currentLang} 
+                    onChange={(e) => setCurrentLang(e.target.value)}
+                    className={`px-1 py-1 text-xs rounded focus:outline-none focus:ring-1 transition-all ${
+                      isDarkMode 
+                        ? 'bg-gray-700 text-gray-300 focus:ring-blue-500' 
+                        : 'bg-gray-100 text-gray-700 focus:ring-blue-500'
+                    }`}
+                  >
+                    {languages.map(lang => (
+                      <option key={lang.code} value={lang.code}>
+                        {lang.flag}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                
+                {/* Dark Mode Toggle */}
+                <button
+                  onClick={() => setIsDarkMode(!isDarkMode)}
+                  className={`p-1.5 rounded-full transition-all ${
+                    isDarkMode ? 'bg-gray-700 hover:bg-gray-600 text-gray-300' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                  }`}
+                >
+                  {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
+                </button>
+                
+                {/* Language Selector - Desktop Only */}
+                <div className="hidden lg:block">
+                  <button className={`p-1.5 rounded-full transition-all relative group ${
+                    isDarkMode ? 'bg-gray-700 hover:bg-gray-600 text-gray-300' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                  }`}>
+                    <Globe size={18} />
+                    <div className={`absolute top-full right-0 mt-1 w-24 rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 ${
+                      isDarkMode ? 'bg-gray-800' : 'bg-white'
+                    }`}>
+                      {languages.map(lang => (
+                        <button
+                          key={lang.code}
+                          onClick={() => setCurrentLang(lang.code)}
+                          className={`w-full px-2 py-1.5 text-left flex items-center justify-center first:rounded-t-lg last:rounded-b-lg transition-all ${
+                            isDarkMode ? 'hover:bg-gray-700 text-gray-300' : 'hover:bg-gray-50 text-gray-700'
+                          }`}
+                        >
+                          <span className="text-lg">{lang.flag}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </header>
+
+          {/* Page Content */}
+          <div className={`flex-1 overflow-auto ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+            <Routes>
+              <Route path="/" element={<MapView />} />
+              <Route path="/map" element={<MapView />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/error-reports" element={<ErrorReports />} />
+              <Route path="/account-settings" element={<AccountSettings />} />
+            </Routes>
+          </div>
+        </main>
+      </div>
+    </Router>
+  );
+}
+
+export default App;
