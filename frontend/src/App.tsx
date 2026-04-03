@@ -1,16 +1,85 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Dashboard } from './components/Dashboard.tsx';
 import { MapView } from './components/MapView.tsx';
 import { ErrorReports } from './components/ErrorReports.tsx';
 import { AccountSettings } from './components/AccountSettings.tsx';
+import { ComingSoon } from './components/ComingSoon.tsx';
 import { Menu, X, Map, Home, AlertTriangle, Settings, Globe, Sun, Moon } from 'lucide-react';
 import { Logo } from './components/Logo.tsx';
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(false);
-  const [currentLang, setCurrentLang] = useState('sr');
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    // Load theme from localStorage or default to false
+    const savedTheme = localStorage.getItem('smartMitrovicaTheme');
+    return savedTheme === 'dark';
+  });
+  const [currentLang, setCurrentLang] = useState(() => {
+    // Load language from localStorage or default to 'sr'
+    const savedLang = localStorage.getItem('smartMitrovicaLang');
+    return savedLang || 'sr';
+  });
+
+  const translations: Record<string, Record<string, Record<string, string>>> = {
+    sr: {
+      menu: {
+        map: 'Mapa',
+        dashboard: 'Dashboard',
+        reports: 'Prijave',
+        settings: 'Podešavanja',
+        comingSoon: 'Coming Soon'
+      },
+      user: {
+        profile: 'Profil',
+        email: 'Email'
+      },
+      common: {
+        save: 'Sačuvaj',
+        cancel: 'Otkaži',
+        add: 'Dodaj',
+        search: 'Pretraži',
+        filter: 'Filter',
+        loading: 'Učitavanje...',
+        noData: 'Nema podataka',
+        error: 'Greška',
+        success: 'Uspešno'
+      }
+    },
+    en: {
+      menu: {
+        map: 'Map',
+        dashboard: 'Dashboard',
+        reports: 'Reports',
+        settings: 'Settings',
+        comingSoon: 'Coming Soon'
+      },
+      user: {
+        profile: 'Profile',
+        email: 'Email'
+      },
+      common: {
+        save: 'Save',
+        cancel: 'Cancel',
+        add: 'Add',
+        search: 'Search',
+        filter: 'Filter',
+        loading: 'Loading...',
+        noData: 'No data',
+        error: 'Error',
+        success: 'Success'
+      }
+    }
+  };
+
+  const t = (key: string): string => {
+    const keys = key.split('.');
+    let value: any = translations[currentLang];
+    for (const k of keys) {
+      value = value?.[k];
+    }
+    return value || key;
+  };
 
   const languages = [
     { code: 'sr', name: 'Srpski', flag: '🇷🇸' },
@@ -18,20 +87,28 @@ function App() {
   ];
 
   const menuItems = [
-    { path: '/map', label: 'Mapa', icon: Map },
-    { path: '/dashboard', label: 'Dashboard', icon: Home },
-    { path: '/error-reports', label: 'Prijave', icon: AlertTriangle },
-    { path: '/account-settings', label: 'Podešavanja', icon: Settings },
+    { path: '/map', label: t('menu.map'), icon: Map },
+    { path: '/dashboard', label: t('menu.dashboard'), icon: Home },
+    { path: '/error-reports', label: t('menu.reports'), icon: AlertTriangle },
+    { path: '/coming-soon', label: t('menu.comingSoon'), icon: Globe },
+    { path: '/account-settings', label: t('menu.settings'), icon: Settings },
   ];
 
-  // Apply dark mode to body
+  // Apply dark mode to body and save to localStorage
   useEffect(() => {
     if (isDarkMode) {
       document.body.classList.add('dark');
+      localStorage.setItem('smartMitrovicaTheme', 'dark');
     } else {
       document.body.classList.remove('dark');
+      localStorage.setItem('smartMitrovicaTheme', 'light');
     }
   }, [isDarkMode]);
+
+  // Save language to localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem('smartMitrovicaLang', currentLang);
+  }, [currentLang]);
 
   return (
     <Router>
@@ -49,8 +126,9 @@ function App() {
 
             {/* Navigation Menu */}
             <nav className="flex-1 p-4 space-y-2">
-              {menuItems.map((item) => {
+              {menuItems.map((item, index) => {
                 const Icon = item.icon;
+                const isLastItem = index === menuItems.length - 1;
                 return (
                   <a
                     key={item.path}
@@ -64,7 +142,7 @@ function App() {
                       isDarkMode 
                         ? 'text-gray-300 hover:bg-gray-700 hover:text-blue-400' 
                         : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
-                    }`}
+                    } ${isLastItem ? 'mt-auto border-t pt-6 ' + (isDarkMode ? 'border-gray-700' : 'border-gray-200') : ''}`}
                   >
                     <Icon size={20} className="group-hover:scale-110 transition-transform" />
                     <span className="font-medium">{item.label}</span>
@@ -121,10 +199,10 @@ function App() {
               {/* Desktop Title */}
               <div className="hidden lg:block">
                 <h2 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
-                  {(window.location.pathname === '/' || window.location.pathname === '/map') && 'Mapa'}
-                  {window.location.pathname === '/dashboard' && 'Dashboard'}
-                  {window.location.pathname === '/error-reports' && 'Prijave'}
-                  {window.location.pathname === '/account-settings' && 'Podešavanja'}
+                  {(window.location.pathname === '/' || window.location.pathname === '/map') && t('menu.map')}
+                  {window.location.pathname === '/dashboard' && t('menu.dashboard')}
+                  {window.location.pathname === '/error-reports' && t('menu.reports')}
+                  {window.location.pathname === '/account-settings' && t('menu.settings')}
                 </h2>
               </div>
               
@@ -135,10 +213,10 @@ function App() {
                   <select 
                     value={currentLang} 
                     onChange={(e) => setCurrentLang(e.target.value)}
-                    className={`px-1 py-1 text-xs rounded focus:outline-none focus:ring-1 transition-all ${
+                    className={`px-1 py-1 text-xs border rounded focus:outline-none focus:ring-1 transition-all ${
                       isDarkMode 
-                        ? 'bg-gray-700 text-gray-300 focus:ring-blue-500' 
-                        : 'bg-gray-100 text-gray-700 focus:ring-blue-500'
+                        ? 'bg-gray-700 border-gray-600 text-gray-300 focus:ring-blue-500' 
+                        : 'bg-white border-gray-300 text-gray-700 focus:ring-blue-500'
                     }`}
                   >
                     {languages.map(lang => (
@@ -190,10 +268,11 @@ function App() {
           <div className={`flex-1 overflow-auto ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
             <Routes>
               <Route path="/" element={<MapView />} />
-              <Route path="/map" element={<MapView />} />
+              <Route path="/map" element={<Navigate to="/" replace />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/error-reports" element={<ErrorReports />} />
               <Route path="/account-settings" element={<AccountSettings />} />
+              <Route path="/coming-soon" element={<ComingSoon />} />
             </Routes>
           </div>
         </main>

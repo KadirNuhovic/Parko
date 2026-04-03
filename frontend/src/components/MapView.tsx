@@ -32,8 +32,12 @@ const MapEvents: React.FC<{ onLocationClick: (lat: number, lng: number) => void 
   return null;
 };
 
-export const MapView: React.FC = () => {
-  const [isDarkMode, setIsDarkMode] = useState(false);
+export const MapView: React.FC<{ t?: (key: string) => string }> = ({ t }) => {
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    // Load theme from localStorage or default to false
+    const savedTheme = localStorage.getItem('smartMitrovicaTheme');
+    return savedTheme === 'dark';
+  });
 
   const [locations] = useState<Location[]>([
     // Parking mesta - Severna Kosovska Mitrovica
@@ -54,10 +58,12 @@ export const MapView: React.FC = () => {
   const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
 
-  // Check dark mode from body class
+  // Check dark mode from localStorage and body class
   useEffect(() => {
     const checkDarkMode = () => {
-      setIsDarkMode(document.body.classList.contains('dark'));
+      const savedTheme = localStorage.getItem('smartMitrovicaTheme');
+      const isDark = savedTheme === 'dark' || document.body.classList.contains('dark');
+      setIsDarkMode(isDark);
     };
     
     checkDarkMode();
@@ -118,13 +124,13 @@ export const MapView: React.FC = () => {
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           {/* Mobile Title */}
           <div className="lg:hidden flex items-center justify-center w-full">
-            <h2 className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Mapa</h2>
+            <h2 className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>{t ? t('menu.map') : 'Mapa'}</h2>
           </div>
           
           {/* Desktop Title */}
           <div className="hidden lg:block">
-            <h2 className={`text-xl lg:text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Mapa</h2>
-            <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} mt-1`}>Prijavite i pratite probleme u vašem gradu</p>
+            <h2 className={`text-xl lg:text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>{t ? t('menu.map') : 'Mapa'}</h2>
+            <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} mt-1`}>{t ? t('common.reportProblems') : 'Prijavite i pratite probleme u vašem gradu'}</p>
           </div>
           
           {/* Desktop Buttons */}
@@ -134,14 +140,14 @@ export const MapView: React.FC = () => {
               className="flex items-center justify-center space-x-2 bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 transition-colors w-full sm:w-auto"
             >
               <Navigation size={18} />
-              <span>Moja Lokacija</span>
+              <span>{t ? t('common.myLocation') : 'Moja Lokacija'}</span>
             </button>
             <button
               onClick={() => setShowAddForm(!showAddForm)}
               className="flex items-center justify-center space-x-2 bg-green-600 text-white px-3 py-2 rounded-lg hover:bg-green-700 transition-colors w-full sm:w-auto"
             >
               <Plus size={18} />
-              <span>Dodaj Prijavu</span>
+              <span>{t ? t('common.addReport') : 'Dodaj'}</span> <span>{t ? t('common.report') : 'Prijavu'}</span>
             </button>
           </div>
         </div>

@@ -3,12 +3,18 @@ import { Map, AlertCircle, Users, TrendingUp, Plus } from 'lucide-react';
 import { Logo } from './Logo.tsx';
 
 export const Dashboard: React.FC = () => {
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    // Load theme from localStorage or default to false
+    const savedTheme = localStorage.getItem('smartMitrovicaTheme');
+    return savedTheme === 'dark';
+  });
 
-  // Check dark mode from body class
+  // Check dark mode from localStorage and body class
   useEffect(() => {
     const checkDarkMode = () => {
-      setIsDarkMode(document.body.classList.contains('dark'));
+      const savedTheme = localStorage.getItem('smartMitrovicaTheme');
+      const isDark = savedTheme === 'dark' || document.body.classList.contains('dark');
+      setIsDarkMode(isDark);
     };
     
     checkDarkMode();
