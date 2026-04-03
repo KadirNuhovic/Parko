@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, Link } from 'react-router-dom';
 import { Dashboard } from './components/Dashboard.tsx';
 import { MapView } from './components/MapView.tsx';
 import { ErrorReports } from './components/ErrorReports.tsx';
@@ -130,14 +130,10 @@ function App() {
                 const Icon = item.icon;
                 const isLastItem = index === menuItems.length - 1;
                 return (
-                  <a
+                  <Link
                     key={item.path}
-                    href={item.path}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      window.location.href = item.path;
-                      setIsSidebarOpen(false);
-                    }}
+                    to={item.path}
+                    onClick={() => setIsSidebarOpen(false)}
                     className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
                       isDarkMode 
                         ? 'text-gray-300 hover:bg-gray-700 hover:text-blue-400' 
@@ -146,7 +142,7 @@ function App() {
                   >
                     <Icon size={20} className="group-hover:scale-110 transition-transform" />
                     <span className="font-medium">{item.label}</span>
-                  </a>
+                  </Link>
                 );
               })}
             </nav>
