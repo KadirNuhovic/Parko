@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { User, Mail, Lock, Bell, Shield, Save, Camera, Eye, EyeOff, Menu, X, ChevronRight } from 'lucide-react';
+import { useTheme } from './ThemeContext.tsx';
 
 export const AccountSettings: React.FC = () => {
+  const { isDarkMode } = useTheme();
   const [showPassword, setShowPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [activeTab, setActiveTab] = useState('profile');
@@ -62,24 +64,24 @@ export const AccountSettings: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className={`min-h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
       {/* Mobile Header */}
-      <div className="lg:hidden bg-white shadow-sm border-b border-gray-200">
+      <div className={`lg:hidden ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} shadow-sm border-b`}>
         <div className="flex items-center justify-between p-4">
           <button
             onClick={() => setShowMobileMenu(!showMobileMenu)}
-            className="p-2 rounded-lg hover:bg-gray-100"
+            className={`p-2 rounded-lg ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
           >
             {showMobileMenu ? <X size={24} /> : <Menu size={24} />}
           </button>
-          <h2 className="text-lg font-semibold text-gray-800">Podešavanja</h2>
+          <h2 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Podešavanja</h2>
         </div>
         
         {/* Mobile Menu */}
         {showMobileMenu && (
-          <div className="bg-white border-b border-gray-200">
+          <div className={`${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border-b`}>
             <div className="p-4">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">Meni</h3>
+              <h3 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Meni</h3>
               {menuItems.map((item) => {
                 const Icon = item.icon;
                 return (
@@ -91,8 +93,8 @@ export const AccountSettings: React.FC = () => {
                     }}
                     className={`w-full flex items-center space-x-3 p-3 rounded-lg transition-colors ${
                       activeTab === item.id
-                        ? 'bg-blue-100 text-blue-700'
-                        : 'hover:bg-gray-100 text-gray-700'
+                        ? isDarkMode ? 'bg-blue-900/30 text-blue-400' : 'bg-blue-100 text-blue-700'
+                        : isDarkMode ? 'hover:bg-gray-700 text-gray-300' : 'hover:bg-gray-100 text-gray-700'
                     }`}
                   >
                     <Icon size={20} />
@@ -107,7 +109,7 @@ export const AccountSettings: React.FC = () => {
 
       <div className="flex flex-col lg:flex-row">
         {/* Sidebar */}
-        <aside className="w-full lg:w-64 bg-white border-r border-gray-200">
+        <aside className={`w-full lg:w-64 ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border-r`}>
           <nav className="hidden lg:flex lg:flex-col lg:space-y-2 p-6">
             {menuItems.map((item) => {
               const Icon = item.icon;
@@ -117,8 +119,8 @@ export const AccountSettings: React.FC = () => {
                   onClick={() => setActiveTab(item.id)}
                   className={`w-full flex items-center space-x-3 p-3 rounded-lg transition-colors ${
                     activeTab === item.id
-                      ? 'bg-blue-100 text-blue-700'
-                      : 'hover:bg-gray-100 text-gray-700'
+                      ? isDarkMode ? 'bg-blue-900/30 text-blue-400' : 'bg-blue-100 text-blue-700'
+                      : isDarkMode ? 'hover:bg-gray-700 text-gray-300' : 'hover:bg-gray-100 text-gray-700'
                   }`}
                 >
                   <Icon size={20} />
@@ -132,7 +134,7 @@ export const AccountSettings: React.FC = () => {
         {/* Main Content */}
         <main className="flex-1">
           {/* Desktop Header */}
-          <div className="hidden lg:flex space-x-1 mb-6 border-b border-gray-200 pb-6">
+          <div className={`hidden lg:flex space-x-1 mb-6 ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} border-b pb-6`}>
             {menuItems.map((item) => {
               const Icon = item.icon;
               return (
@@ -141,8 +143,8 @@ export const AccountSettings: React.FC = () => {
                   onClick={() => setActiveTab(item.id)}
                   className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
                     activeTab === item.id
-                      ? 'bg-blue-100 text-blue-700'
-                      : 'hover:bg-gray-100 text-gray-700'
+                      ? isDarkMode ? 'bg-blue-900/30 text-blue-400' : 'bg-blue-100 text-blue-700'
+                      : isDarkMode ? 'hover:bg-gray-700 text-gray-300' : 'hover:bg-gray-100 text-gray-700'
                   }`}
                 >
                   <Icon size={18} />
@@ -156,11 +158,11 @@ export const AccountSettings: React.FC = () => {
           <div className="p-6 lg:p-8">
             {activeTab === 'profile' && (
               <div className="space-y-6">
-                <h3 className="text-xl font-semibold text-gray-800 mb-6">Profil</h3>
+                <h3 className={`text-xl font-semibold mb-6 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Profil</h3>
                 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   {/* Profile Picture */}
-                  <div className="bg-white p-6 rounded-lg shadow-sm">
+                  <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} p-6 rounded-lg shadow-sm`}>
                     <div className="relative">
                       <div className="w-24 h-24 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
                         <span className="text-white font-semibold text-2xl">MM</span>
@@ -170,33 +172,37 @@ export const AccountSettings: React.FC = () => {
                       </button>
                     </div>
                     <div>
-                      <h4 className="text-lg font-semibold text-gray-800">Profilna Slika</h4>
-                      <p className="text-sm text-gray-600">JPG, GIF ili PNG. Maksimalna veličina 2MB</p>
+                      <h4 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Profilna Slika</h4>
+                      <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>JPG, GIF ili PNG. Maksimalna veličina 2MB</p>
                     </div>
                   </div>
 
                   {/* Profile Form */}
                   <div className="lg:col-span-2 space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Ime</label>
+                      <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Ime</label>
                       <input
                         type="text"
                         value={profileData.firstName}
                         onChange={(e) => handleProfileChange('firstName', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                          isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'
+                        }`}
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Prezime</label>
+                      <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Prezime</label>
                       <input
                         type="text"
                         value={profileData.lastName}
                         onChange={(e) => handleProfileChange('lastName', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                          isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'
+                        }`}
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                      <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Email</label>
                       <div className="relative">
                         <Mail className="absolute left-3 top-3 text-gray-400" size={18} />
                         <input
@@ -208,30 +214,36 @@ export const AccountSettings: React.FC = () => {
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Telefon</label>
+                      <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Telefon</label>
                       <input
                         type="tel"
                         value={profileData.phone}
                         onChange={(e) => handleProfileChange('phone', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                          isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'
+                        }`}
                       />
                     </div>
                     <div className="lg:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Adresa</label>
+                      <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Adresa</label>
                       <input
                         type="text"
                         value={profileData.address}
                         onChange={(e) => handleProfileChange('address', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                          isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'
+                        }`}
                       />
                     </div>
                     <div className="lg:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Bio</label>
+                      <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Bio</label>
                       <textarea
                         value={profileData.bio}
                         onChange={(e) => handleProfileChange('bio', e.target.value)}
                         rows={4}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                          isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'
+                        }`}
                       />
                     </div>
                   </div>

@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Circle, useMapEvents } from 'react-leaflet';
 import { Icon } from 'leaflet';
-import { Plus, Navigation, Layers, Filter, Search, MapPin } from 'lucide-react';
-import { Logo } from './Logo.tsx';
+import { Plus, Navigation, Layers, MapPin, Car } from 'lucide-react';
 
 const customIcon = new Icon({
   iconUrl: 'https://unpkg.com/leaflet@1.9.3/dist/images/marker-icon.png',
@@ -23,6 +22,16 @@ interface Location {
   date: string;
 }
 
+interface ParkingZone {
+  id: number;
+  lat: number;
+  lng: number;
+  name: string;
+  totalSpaces: number;
+  occupiedSpaces: number;
+  radius: number;
+}
+
 const MapEvents: React.FC<{ onLocationClick: (lat: number, lng: number) => void }> = ({ onLocationClick }) => {
   useMapEvents({
     click: (e) => {
@@ -39,14 +48,21 @@ export const MapView: React.FC<{ t?: (key: string) => string }> = ({ t }) => {
     return savedTheme === 'dark';
   });
 
+  const [parkingZones, setParkingZones] = useState<ParkingZone[]>([
+    // Parking zone - Severna Kosovska Mitrovica
+    { id: 1, name: 'Parking Centar', totalSpaces: 50, occupiedSpaces: 25, radius: 150, lat: 42.8893, lng: 20.8731 },
+    { id: 2, name: 'Parking Tehnički Fakultet', totalSpaces: 30, occupiedSpaces: 15, radius: 120, lat: 42.9000, lng: 20.8600 },
+    { id: 3, name: 'Parking Bolnica', totalSpaces: 40, occupiedSpaces: 35, radius: 130, lat: 42.8980, lng: 20.8680 },
+    { id: 4, name: 'Parking Knez', totalSpaces: 25, occupiedSpaces: 5, radius: 100, lat: 42.9050, lng: 20.8620 },
+    { id: 5, name: 'Parking Krugni Tok Sever', totalSpaces: 60, occupiedSpaces: 48, radius: 180, lat: 42.9080, lng: 20.8700 },
+    { id: 6, name: 'Parking Tržni Centar', totalSpaces: 80, occupiedSpaces: 20, radius: 200, lat: 42.8920, lng: 20.8750 },
+    { id: 7, name: 'Parking Stadion', totalSpaces: 100, occupiedSpaces: 70, radius: 220, lat: 42.8960, lng: 20.8780 },
+    { id: 8, name: 'Parking Železnička Stanica', totalSpaces: 35, occupiedSpaces: 28, radius: 110, lat: 42.8850, lng: 20.8800 },
+    { id: 9, name: 'Parking Škola', totalSpaces: 20, occupiedSpaces: 8, radius: 90, lat: 42.9020, lng: 20.8650 },
+    { id: 10, name: 'Parking Opština', totalSpaces: 45, occupiedSpaces: 40, radius: 140, lat: 42.8870, lng: 20.8710 }
+  ]);
+
   const [locations] = useState<Location[]>([
-    // Parking mesta - Severna Kosovska Mitrovica
-    { id: 1, title: 'Parking - Tehnički Fakultet', description: '5 slobodnih mesta od 12 ukupno', type: 'parking', status: 'slobodno', priority: 'nizak', lat: 42.9000, lng: 20.8600, date: '15.03.2024.' },
-    { id: 2, title: 'Parking - Tehnička Škola', description: '3 slobodna mesta od 8 ukupno', type: 'parking', status: 'slobodno', priority: 'nizak', lat: 42.9020, lng: 20.8650, date: '15.03.2024.' },
-    { id: 3, title: 'Parking - Bolnica', description: 'Nema slobodnih mesta, 15/15 zauzeto', type: 'parking', status: 'zauzeto', priority: 'srednji', lat: 42.8980, lng: 20.8680, date: '15.03.2024.' },
-    { id: 4, title: 'Parking - Knez', description: '2 slobodna mesta od 6 ukupno', type: 'parking', status: 'slobodno', priority: 'nizak', lat: 42.9050, lng: 20.8620, date: '15.03.2024.' },
-    { id: 5, title: 'Parking - Krugni Tok Sever', description: '8 slobodnih mesta od 20 ukupno', type: 'parking', status: 'slobodno', priority: 'nizak', lat: 42.9080, lng: 20.8700, date: '15.03.2024.' },
-    
     // Radovi na putu - Severna Kosovska Mitrovica
     { id: 6, title: 'Radovi - Put ka Tehničkom Fakultetu', description: 'Širenje puta, radovi u toku', type: 'radovi', status: 'u_procesu', priority: 'srednji', lat: 42.9010, lng: 20.8610, date: '15.03.2024.' },
     { id: 7, title: 'Radovi - Ulica kod Bolnice', description: 'Popravka asfalta, očekivano završetak 25.03.2024.', type: 'radovi', status: 'u_procesu', priority: 'visok', lat: 42.8990, lng: 20.8670, date: '14.03.2024.' },
@@ -74,6 +90,40 @@ export const MapView: React.FC<{ t?: (key: string) => string }> = ({ t }) => {
     
     return () => observer.disconnect();
   }, []);
+
+  // AI sistem za automatsku promenu zauzetosti parking zona
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setParkingZones(prevZones => 
+        prevZones.map(zone => {
+          // Simulacija AI promene zauzetosti
+          const change = Math.random() * 10 - 5; // -5 do +5 mesta
+          const newOccupied = Math.max(0, Math.min(zone.totalSpaces, zone.occupiedSpaces + Math.round(change)));
+          return { ...zone, occupiedSpaces: newOccupied };
+        })
+      );
+    }, 7000); // Svakih 7 sekundi
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const getOccupancyColor = (occupied: number, total: number) => {
+    const percentage = (occupied / total) * 100;
+    if (percentage <= 20) {
+      return isDarkMode ? '#10b981' : '#22c55e'; // zelena
+    } else if (percentage <= 80) {
+      return isDarkMode ? '#f59e0b' : '#eab308'; // zuta
+    } else {
+      return isDarkMode ? '#dc2626' : '#ef4444'; // crvena
+    }
+  };
+
+  const getOccupancyStatus = (occupied: number, total: number) => {
+    const percentage = (occupied / total) * 100;
+    if (percentage <= 20) return 'Slobodno';
+    if (percentage <= 80) return 'Delimično Zauzeto';
+    return 'Zauzeto';
+  };
 
   const handleMapClick = (lat: number, lng: number) => {
     setSelectedLocation({ lat, lng });
@@ -196,6 +246,48 @@ export const MapView: React.FC<{ t?: (key: string) => string }> = ({ t }) => {
               key="tile-layer"
             />
             <MapEvents onLocationClick={handleMapClick} key="map-events" />
+            
+            {/* Parking Zone Circles */}
+            {parkingZones.map((zone) => (
+              <Circle
+                key={zone.id}
+                center={[zone.lat, zone.lng]}
+                radius={zone.radius}
+                pathOptions={{
+                  color: getOccupancyColor(zone.occupiedSpaces, zone.totalSpaces),
+                  fillColor: getOccupancyColor(zone.occupiedSpaces, zone.totalSpaces),
+                  fillOpacity: 0.4,
+                  weight: 2,
+                }}
+              >
+                <Popup>
+                  <div className={`p-3 min-w-48 max-w-64 ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}>
+                    <div className="flex items-center space-x-2 mb-2">
+                      <Car size={18} className="text-blue-500" />
+                      <h3 className="font-semibold text-sm">{zone.name}</h3>
+                    </div>
+                    <div className="space-y-1">
+                      <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                        <span className="font-medium">Zauzeto:</span> {zone.occupiedSpaces}/{zone.totalSpaces} mesta
+                      </p>
+                      <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                        <span className="font-medium">Slobodno:</span> {zone.totalSpaces - zone.occupiedSpaces} mesta
+                      </p>
+                      <p className={`text-sm font-medium ${
+                        getOccupancyColor(zone.occupiedSpaces, zone.totalSpaces) === '#22c55e' || getOccupancyColor(zone.occupiedSpaces, zone.totalSpaces) === '#10b981'
+                          ? 'text-green-500'
+                          : getOccupancyColor(zone.occupiedSpaces, zone.totalSpaces) === '#eab308' || getOccupancyColor(zone.occupiedSpaces, zone.totalSpaces) === '#f59e0b'
+                          ? 'text-yellow-500'
+                          : 'text-red-500'
+                      }`}>
+                        Status: {getOccupancyStatus(zone.occupiedSpaces, zone.totalSpaces)}
+                      </p>
+                    </div>
+                  </div>
+                </Popup>
+              </Circle>
+            ))}
+            
             {locations.map((location: Location) => (
               <Marker key={location.id} position={[location.lat, location.lng]} icon={customIcon}>
                 <Popup>
@@ -259,26 +351,36 @@ export const MapView: React.FC<{ t?: (key: string) => string }> = ({ t }) => {
       <div className={`${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border-t p-4 lg:p-6 flex-shrink-0 mx-4 mb-4`}>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div className={`${isDarkMode ? 'bg-green-900 border-green-700' : 'bg-green-50 border-green-200'} p-4 rounded-lg border`}>
-            <h3 className={`font-semibold ${isDarkMode ? 'text-green-300' : 'text-green-800'} text-sm md:text-base`}>Slobodna Parking Mesta</h3>
+            <h3 className={`font-semibold ${isDarkMode ? 'text-green-300' : 'text-green-800'} text-sm md:text-base`}>Slobodne Parking Zone</h3>
             <p className={`text-xl md:text-2xl font-bold ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}>
-              {locations.filter((l: Location) => l.type === 'parking' && l.status === 'slobodno').length}
+              {parkingZones.filter(zone => (zone.occupiedSpaces / zone.totalSpaces) <= 0.2).length}
             </p>
-            <p className={`text-sm ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}>dostupno mesta</p>
+            <p className={`text-sm ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}>slobodnih zona</p>
           </div>
           <div className={`${isDarkMode ? 'bg-red-900 border-red-700' : 'bg-red-50 border-red-200'} p-4 rounded-lg border`}>
-            <h3 className={`font-semibold ${isDarkMode ? 'text-red-300' : 'text-red-800'} text-sm md:text-base`}>Zauzeta Parking Mesta</h3>
+            <h3 className={`font-semibold ${isDarkMode ? 'text-red-300' : 'text-red-800'} text-sm md:text-base`}>Zauzete Parking Zone</h3>
             <p className={`text-xl md:text-2xl font-bold ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}>
-              {locations.filter((l: Location) => l.type === 'parking' && l.status === 'zauzeto').length}
+              {parkingZones.filter(zone => (zone.occupiedSpaces / zone.totalSpaces) > 0.8).length}
             </p>
-            <p className={`text-sm ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}>zauzeta mesta</p>
+            <p className={`text-sm ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}>zauzetih zona</p>
           </div>
           <div className={`${isDarkMode ? 'bg-yellow-900 border-yellow-700' : 'bg-yellow-50 border-yellow-200'} p-4 rounded-lg border`}>
-            <h3 className={`font-semibold ${isDarkMode ? 'text-yellow-300' : 'text-yellow-800'} text-sm md:text-base`}>Radovi na Putu</h3>
+            <h3 className={`font-semibold ${isDarkMode ? 'text-yellow-300' : 'text-yellow-800'} text-sm md:text-base`}>Delimično Zauzete</h3>
             <p className={`text-xl md:text-2xl font-bold ${isDarkMode ? 'text-yellow-400' : 'text-yellow-600'}`}>
-              {locations.filter((l: Location) => l.type === 'radovi').length}
+              {parkingZones.filter(zone => (zone.occupiedSpaces / zone.totalSpaces) > 0.2 && (zone.occupiedSpaces / zone.totalSpaces) <= 0.8).length}
             </p>
-            <p className={`text-sm ${isDarkMode ? 'text-yellow-400' : 'text-yellow-600'}`}>aktivnih radova</p>
+            <p className={`text-sm ${isDarkMode ? 'text-yellow-400' : 'text-yellow-600'}`}>delimično zauzetih</p>
           </div>
+        </div>
+        
+        {/* Additional Info */}
+        <div className={`mt-4 p-3 rounded-lg ${isDarkMode ? 'bg-blue-900' : 'bg-blue-50'}`}>
+          <p className={`text-sm ${isDarkMode ? 'text-blue-300' : 'text-blue-800'}`}>
+            <Car size={16} className="inline mr-2" />
+            Ukupno parking zona: {parkingZones.length} | 
+            Ukupno mesta: {parkingZones.reduce((sum, zone) => sum + zone.totalSpaces, 0)} | 
+            Slobodno: {parkingZones.reduce((sum, zone) => sum + (zone.totalSpaces - zone.occupiedSpaces), 0)}
+          </p>
         </div>
       </div>
 

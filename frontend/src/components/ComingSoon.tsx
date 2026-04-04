@@ -1,7 +1,9 @@
 import React from 'react';
 import { Globe, Clock, ArrowRight, Star, Zap, Package, Users, TrendingUp } from 'lucide-react';
+import { useTheme } from './ThemeContext.tsx';
 
 export const ComingSoon: React.FC = () => {
+  const { isDarkMode } = useTheme();
   const features = [
     {
       icon: Globe,
@@ -44,30 +46,30 @@ export const ComingSoon: React.FC = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'U razvoju':
-        return 'text-green-600 bg-green-100';
+        return isDarkMode ? 'text-green-400 bg-green-900/30' : 'text-green-600 bg-green-100';
       case 'U planiranju':
-        return 'text-blue-600 bg-blue-100';
+        return isDarkMode ? 'text-blue-400 bg-blue-900/30' : 'text-blue-600 bg-blue-100';
       case 'Istraživanje':
-        return 'text-purple-600 bg-purple-100';
+        return isDarkMode ? 'text-purple-400 bg-purple-900/30' : 'text-purple-600 bg-purple-100';
       case 'Koncept':
-        return 'text-orange-600 bg-orange-100';
+        return isDarkMode ? 'text-orange-400 bg-orange-900/30' : 'text-orange-600 bg-orange-100';
       default:
-        return 'text-gray-600 bg-gray-100';
+        return isDarkMode ? 'text-gray-400 bg-gray-700/30' : 'text-gray-600 bg-gray-100';
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className={`min-h-screen ${isDarkMode ? 'bg-gradient-to-br from-gray-900 to-gray-800' : 'bg-gradient-to-br from-gray-50 to-gray-100'}`}>
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full mb-6">
             <Globe className="text-white" size={40} />
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+          <h1 className={`text-4xl font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
             Uskoro Dostupno
           </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+          <p className={`text-xl mb-8 max-w-2xl mx-auto ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
             Radimo na novim funkcijama koje će učiniti Smart Mitrovica još boljom platformom za sve građane.
           </p>
         </div>
@@ -79,7 +81,7 @@ export const ComingSoon: React.FC = () => {
             return (
               <div
                 key={index}
-                className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 hover:scale-105"
+                className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 hover:scale-105`}
               >
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg">
@@ -89,10 +91,10 @@ export const ComingSoon: React.FC = () => {
                     {feature.status}
                   </span>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                <h3 className={`text-lg font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                   {feature.title}
                 </h3>
-                <p className="text-gray-600 text-sm leading-relaxed">
+                <p className={`text-sm leading-relaxed ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                   {feature.description}
                 </p>
               </div>
@@ -101,57 +103,57 @@ export const ComingSoon: React.FC = () => {
         </div>
 
         {/* Timeline */}
-        <div className="bg-white rounded-xl shadow-lg p-8 mb-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">
+        <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-xl shadow-lg p-8 mb-12`}>
+          <h2 className={`text-2xl font-bold mb-8 text-center ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
             Razvojni Plan
           </h2>
           <div className="space-y-6">
             <div className="flex items-start space-x-4">
-              <div className="flex-shrink-0 w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                <Clock className="text-green-600" size={20} />
+              <div className={`flex-shrink-0 w-12 h-12 ${isDarkMode ? 'bg-green-900/30' : 'bg-green-100'} rounded-full flex items-center justify-center`}>
+                <Clock className={isDarkMode ? 'text-green-400' : 'text-green-600'} size={20} />
               </div>
               <div className="flex-1">
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-lg font-semibold text-gray-900">
+                  <h3 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                     Q1 2024 - Globalna Mreža
                   </h3>
-                  <span className="text-sm text-green-600 font-medium">Aktivno</span>
+                  <span className={`text-sm font-medium ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}>Aktivno</span>
                 </div>
-                <p className="text-gray-600">
+                <p className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>
                   Povezivanje sa gradovima širom sveta za deljenje najboljih praksi i rešenja.
                 </p>
               </div>
             </div>
 
             <div className="flex items-start space-x-4">
-              <div className="flex-shrink-0 w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                <Package className="text-blue-600" size={20} />
+              <div className={`flex-shrink-0 w-12 h-12 ${isDarkMode ? 'bg-blue-900/30' : 'bg-blue-100'} rounded-full flex items-center justify-center`}>
+                <Package className={isDarkMode ? 'text-blue-400' : 'text-blue-600'} size={20} />
               </div>
               <div className="flex-1">
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-lg font-semibold text-gray-900">
+                  <h3 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                     Q2 2024 - Korisnički Profili
                   </h3>
-                  <span className="text-sm text-blue-600 font-medium">U planiranju</span>
+                  <span className={`text-sm font-medium ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`}>U planiranju</span>
                 </div>
-                <p className="text-gray-600">
+                <p className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>
                   Personalizovani profili sa naprednim podešavanjima i praćenjem aktivnosti.
                 </p>
               </div>
             </div>
 
             <div className="flex items-start space-x-4">
-              <div className="flex-shrink-0 w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                <Zap className="text-purple-600" size={20} />
+              <div className={`flex-shrink-0 w-12 h-12 ${isDarkMode ? 'bg-purple-900/30' : 'bg-purple-100'} rounded-full flex items-center justify-center`}>
+                <Zap className={isDarkMode ? 'text-purple-400' : 'text-purple-600'} size={20} />
               </div>
               <div className="flex-1">
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-lg font-semibold text-gray-900">
+                  <h3 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                     Q3 2024 - AI Asistent
                   </h3>
-                  <span className="text-sm text-purple-600 font-medium">Istraživanje</span>
+                  <span className={`text-sm font-medium ${isDarkMode ? 'text-purple-400' : 'text-purple-600'}`}>Istraživanje</span>
                 </div>
-                <p className="text-gray-600">
+                <p className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>
                   Veštačka inteligencija za brže rešavanje problema i preporuke.
                 </p>
               </div>
@@ -167,7 +169,9 @@ export const ComingSoon: React.FC = () => {
           <p className="text-lg mb-6 opacity-90">
             Prijavite se za beta testiranje novih funkcija i dobijte ekskluzivan pristup.
           </p>
-          <button className="inline-flex items-center space-x-2 bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+          <button className={`inline-flex items-center space-x-2 px-6 py-3 rounded-lg font-semibold transition-colors ${
+            isDarkMode ? 'bg-gray-700 text-white hover:bg-gray-600' : 'bg-white text-blue-600 hover:bg-gray-100'
+          }`}>
             <span>Prijavite se za Beta</span>
             <ArrowRight size={20} />
           </button>
@@ -175,9 +179,9 @@ export const ComingSoon: React.FC = () => {
 
         {/* Footer */}
         <div className="mt-12 text-center">
-          <p className="text-gray-500">
+          <p className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}>
             Imate pitanja ili predloge? Kontaktirajte nas na{' '}
-            <a href="mailto:info@smartmitrovica.rs" className="text-blue-600 hover:text-blue-700 font-medium">
+            <a href="mailto:info@smartmitrovica.rs" className={`font-medium ${isDarkMode ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-700'}`}>
               info@smartmitrovica.rs
             </a>
           </p>

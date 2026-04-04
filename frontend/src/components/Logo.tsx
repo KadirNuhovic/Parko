@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface LogoProps {
-  size?: 'small' | 'medium' | 'large';
+  size?: 'small' | 'medium' | 'large' | 'extra-large';
   showText?: boolean;
   className?: string;
 }
@@ -10,7 +10,8 @@ export const Logo: React.FC<LogoProps> = ({ size = 'medium', showText = true, cl
   const sizeConfig = {
     small: { imageSize: 40, textSize: 'text-sm', containerSize: 'w-10 h-10' },
     medium: { imageSize: 48, textSize: 'text-base', containerSize: 'w-12 h-12' },
-    large: { imageSize: 56, textSize: 'text-lg', containerSize: 'w-14 h-14' }
+    large: { imageSize: 56, textSize: 'text-lg', containerSize: 'w-14 h-14' },
+    'extra-large': { imageSize: 120, textSize: 'text-2xl', containerSize: 'w-32 h-32' }
   };
 
   const config = sizeConfig[size];

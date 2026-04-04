@@ -1,30 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Map, AlertCircle, Users, TrendingUp, Plus } from 'lucide-react';
 import { Logo } from './Logo.tsx';
+import { useTheme } from './ThemeContext.tsx';
 
 export const Dashboard: React.FC = () => {
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    // Load theme from localStorage or default to false
-    const savedTheme = localStorage.getItem('smartMitrovicaTheme');
-    return savedTheme === 'dark';
-  });
-
-  // Check dark mode from localStorage and body class
-  useEffect(() => {
-    const checkDarkMode = () => {
-      const savedTheme = localStorage.getItem('smartMitrovicaTheme');
-      const isDark = savedTheme === 'dark' || document.body.classList.contains('dark');
-      setIsDarkMode(isDark);
-    };
-    
-    checkDarkMode();
-    
-    // Listen for changes
-    const observer = new MutationObserver(checkDarkMode);
-    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
-    
-    return () => observer.disconnect();
-  }, []);
+  const { isDarkMode } = useTheme();
 
   const stats = [
     { title: 'Ukupno Prijava', value: '156', icon: AlertCircle, color: 'bg-red-500', change: '+12%' },

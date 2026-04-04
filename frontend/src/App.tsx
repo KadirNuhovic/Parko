@@ -5,28 +5,31 @@ import { MapView } from './components/MapView.tsx';
 import { ErrorReports } from './components/ErrorReports.tsx';
 import { AccountSettings } from './components/AccountSettings.tsx';
 import { ComingSoon } from './components/ComingSoon.tsx';
-import { Menu, X, Map, Home, AlertTriangle, Settings, Globe, Sun, Moon } from 'lucide-react';
+import { ParkingCheckIn } from './components/ParkingCheckIn.tsx';
+import SubscriptionPlans from './components/SubscriptionPlans.tsx';
+import { SubscriptionProvider } from './components/SubscriptionContext.tsx';
+import { ThemeProvider, useTheme } from './components/ThemeContext.tsx';
+import { LoadingScreen } from './components/LoadingScreen.tsx';
+import { Menu, X, Map, Home, AlertTriangle, Settings, Globe, Sun, Moon, Car, Crown } from 'lucide-react';
 import { Logo } from './components/Logo.tsx';
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    // Load theme from localStorage or default to false
-    const savedTheme = localStorage.getItem('smartMitrovicaTheme');
-    return savedTheme === 'dark';
-  });
   const [currentLang, setCurrentLang] = useState(() => {
     // Load language from localStorage or default to 'sr'
     const savedLang = localStorage.getItem('smartMitrovicaLang');
     return savedLang || 'sr';
   });
+  const [isLoading, setIsLoading] = useState(true);
 
   const translations: Record<string, Record<string, Record<string, string>>> = {
     sr: {
       menu: {
         map: 'Mapa',
         dashboard: 'Dashboard',
+        parking: 'Parking',
         reports: 'Prijave',
+        subscription: 'Planovi',
         settings: 'Podešavanja',
         comingSoon: 'Coming Soon'
       },
@@ -50,7 +53,9 @@ function App() {
       menu: {
         map: 'Map',
         dashboard: 'Dashboard',
+        parking: 'Parking',
         reports: 'Reports',
+        subscription: 'Plans',
         settings: 'Settings',
         comingSoon: 'Coming Soon'
       },
@@ -89,21 +94,12 @@ function App() {
   const menuItems = [
     { path: '/map', label: t('menu.map'), icon: Map },
     { path: '/dashboard', label: t('menu.dashboard'), icon: Home },
+    { path: '/parking', label: t('menu.parking'), icon: Car },
+    { path: '/subscription', label: t('menu.subscription'), icon: Crown },
     { path: '/error-reports', label: t('menu.reports'), icon: AlertTriangle },
     { path: '/coming-soon', label: t('menu.comingSoon'), icon: Globe },
     { path: '/account-settings', label: t('menu.settings'), icon: Settings },
   ];
-
-  // Apply dark mode to body and save to localStorage
-  useEffect(() => {
-    if (isDarkMode) {
-      document.body.classList.add('dark');
-      localStorage.setItem('smartMitrovicaTheme', 'dark');
-    } else {
-      document.body.classList.remove('dark');
-      localStorage.setItem('smartMitrovicaTheme', 'light');
-    }
-  }, [isDarkMode]);
 
   // Save language to localStorage when it changes
   useEffect(() => {
@@ -111,8 +107,47 @@ function App() {
   }, [currentLang]);
 
   return (
-    <Router>
-      <div className={`flex h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'} overflow-hidden`}>
+    <ThemeProvider>
+      {isLoading ? (
+        <LoadingScreen onComplete={() => setIsLoading(false)} />
+      ) : (
+        <AppContent 
+          isSidebarOpen={isSidebarOpen}
+          setIsSidebarOpen={setIsSidebarOpen}
+          currentLang={currentLang}
+          setCurrentLang={setCurrentLang}
+          t={t}
+          languages={languages}
+          menuItems={menuItems}
+        />
+      )}
+    </ThemeProvider>
+  );
+}
+
+function AppContent({ 
+  isSidebarOpen, 
+  setIsSidebarOpen, 
+  currentLang, 
+  setCurrentLang, 
+  t, 
+  languages, 
+  menuItems 
+}: {
+  isSidebarOpen: boolean;
+  setIsSidebarOpen: (value: boolean) => void;
+  currentLang: string;
+  setCurrentLang: (value: string) => void;
+  t: (key: string) => string;
+  languages: { code: string; name: string; flag: string }[];
+  menuItems: { path: string; label: string; icon: any }[];
+}) {
+  const { isDarkMode, toggleDarkMode } = useTheme();
+
+  return (
+    <SubscriptionProvider>
+      <Router>
+        <div className={`flex h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'} overflow-hidden`}>
         {/* Sidebar */}
         <aside className={`
           fixed lg:static inset-y-0 left-0 z-40 w-72 ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-2xl transform transition-transform duration-300 ease-in-out
@@ -197,6 +232,8 @@ function App() {
                 <h2 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
                   {(window.location.pathname === '/' || window.location.pathname === '/map') && t('menu.map')}
                   {window.location.pathname === '/dashboard' && t('menu.dashboard')}
+                  {window.location.pathname === '/parking' && t('menu.parking')}
+                  {window.location.pathname === '/subscription' && t('menu.subscription')}
                   {window.location.pathname === '/error-reports' && t('menu.reports')}
                   {window.location.pathname === '/account-settings' && t('menu.settings')}
                 </h2>
@@ -225,7 +262,7 @@ function App() {
                 
                 {/* Dark Mode Toggle */}
                 <button
-                  onClick={() => setIsDarkMode(!isDarkMode)}
+                  onClick={() => toggleDarkMode()}
                   className={`p-1.5 rounded-full transition-all ${
                     isDarkMode ? 'bg-gray-700 hover:bg-gray-600 text-gray-300' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
                   }`}
@@ -266,6 +303,8 @@ function App() {
               <Route path="/" element={<MapView />} />
               <Route path="/map" element={<Navigate to="/" replace />} />
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/parking" element={<ParkingCheckIn />} />
+              <Route path="/subscription" element={<SubscriptionPlans />} />
               <Route path="/error-reports" element={<ErrorReports />} />
               <Route path="/account-settings" element={<AccountSettings />} />
               <Route path="/coming-soon" element={<ComingSoon />} />
@@ -274,6 +313,7 @@ function App() {
         </main>
       </div>
     </Router>
+    </SubscriptionProvider>
   );
 }
 
