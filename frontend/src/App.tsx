@@ -146,7 +146,7 @@ function AppContent({
 
   return (
     <SubscriptionProvider>
-      <Router>
+      <Router basename="/">
         <div className={`flex h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'} overflow-hidden`}>
         {/* Sidebar */}
         <aside className={`

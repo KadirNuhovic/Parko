@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Plus, Search, Filter, Eye, Edit, Trash2, CheckCircle, Clock, XCircle, MapPin } from 'lucide-react';
-import { Logo } from './Logo.tsx';
+import React, { useState } from 'react';
+import { Plus, Search, Eye, Edit, Trash2, CheckCircle, Clock, XCircle, MapPin } from 'lucide-react';
+import { useTheme } from './ThemeContext.tsx';
 
 interface ErrorReport {
   id: number;
@@ -15,11 +15,8 @@ interface ErrorReport {
 }
 
 export const ErrorReports: React.FC = () => {
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    // Load theme from localStorage or default to false
-    const savedTheme = localStorage.getItem('smartMitrovicaTheme');
-    return savedTheme === 'dark';
-  });
+  const { isDarkMode } = useTheme();
+  
   const [reports] = useState<ErrorReport[]>([
     { 
       id: 1, 
@@ -91,23 +88,6 @@ export const ErrorReports: React.FC = () => {
 
   const [showAddForm, setShowAddForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-
-  // Check dark mode from localStorage and body class
-  useEffect(() => {
-    const checkDarkMode = () => {
-      const savedTheme = localStorage.getItem('smartMitrovicaTheme');
-      const isDark = savedTheme === 'dark' || document.body.classList.contains('dark');
-      setIsDarkMode(isDark);
-    };
-    
-    checkDarkMode();
-    
-    // Listen for changes
-    const observer = new MutationObserver(checkDarkMode);
-    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
-    
-    return () => observer.disconnect();
-  }, []);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -421,3 +401,5 @@ export const ErrorReports: React.FC = () => {
     </div>
   );
 };
+
+export default ErrorReports;
